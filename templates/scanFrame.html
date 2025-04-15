@@ -1,0 +1,28 @@
+{% extends './base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block customCSS %}
+    <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/.css') }}">-->
+{% endblock %}
+
+{% block body %}
+
+    <div class="centered">
+        <h1 class="p-2">Captura el codigo QR de tu Work Order</h1>
+        <img src="{{ url_for('video_feed') }}" alt="Video en vivo" class="p-2">
+    </div>
+
+    <script>
+        setInterval(() => {
+            fetch('/process-qr')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        window.location.href = `/orden/${data.wo}`;
+                    }
+                });
+        }, 1000);
+    </script>
+
+{% endblock %}

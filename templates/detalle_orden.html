@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle de Orden</title>
+</head>
+<body>
+    <h2>Orden detectada correctamente</h2>
+    <p>WO: {{ orden[0] }}</p>
+    <p>NP: {{ orden[1] }}</p>
+    <p>FE: {{ orden[2] }}</p>
+    <a href="{{ url_for('scan') }}">Escanear otra</a>
+</body>
+</html>
