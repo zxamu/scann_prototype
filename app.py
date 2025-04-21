@@ -19,7 +19,7 @@ db = MySQL(app)
 login_manager_app = LoginManager(app)
 login_manager_app.login_view = 'login'
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(null)
 qr_detector = cv2.QRCodeDetector()
 
 detected_qr_data = None
