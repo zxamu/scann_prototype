@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle de Producción</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            margin-top: 60px;
+        }
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        .card-header {
+            background-color: #0d6efd;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h4>🔧 Orden ya en Producción</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group mb-4">
+                            <li class="list-group-item"><strong>WO:</strong> {{ datos[0] }}</li>
+                            <li class="list-group-item"><strong>Status:</strong> {{ datos[1] }}</li>
+                            <li class="list-group-item"><strong>Usuario ID:</strong> {{ datos[2] }}</li>
+                            <li class="list-group-item"><strong>Máquina:</strong> {{ datos[3] }}</li>
+                        </ul>
+
+                        <div class="text-center">
+                            <a href="{{ url_for('home') }}" class="btn btn-primary">
+                                ⬅️ Volver al inicio
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

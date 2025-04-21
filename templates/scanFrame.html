@@ -1,28 +1,71 @@
 {% extends './base.html' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Escanear QR{% endblock %}
 
 {% block customCSS %}
-    <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/.css') }}">-->
+<style>
+    .scanner-container {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f8f9fa;
+    }
+    .scanner-card {
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border-radius: 12px;
+    }
+    .scanner-video {
+        border-radius: 0 0 12px 12px;
+        width: 100%;
+    }
+    .back-btn {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+    }
+</style>
 {% endblock %}
 
 {% block body %}
+<div class="scanner-container">
 
-    <div class="centered">
-        <h1 class="p-2">Captura el codigo QR de tu Work Order</h1>
-        <img src="{{ url_for('video_feed') }}" alt="Video en vivo" class="p-2">
+    <!-- Botón de regreso -->
+    <div class="back-btn">
+        <button class="btn btn-outline-secondary" onclick="history.back()">
+            <i class="bi bi-arrow-left"></i> Regresar
+        </button>
     </div>
 
-    <script>
-        setInterval(() => {
-            fetch('/process-qr')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        window.location.href = `/orden/${data.wo}`;
-                    }
-                });
-        }, 1000);
-    </script>
+    <!-- Tarjeta de escaneo -->
+    <div class="card scanner-card text-center">
+        <div class="card-header bg-primary text-white">
+            <h4 class="m-0">Escanea el código QR</h4>
+        </div>
+        <img src="{{ url_for('video_feed') }}" alt="Video en vivo" class="scanner-video">
+        <div class="card-body">
+            <p class="text-muted">Asegúrate de enfocar correctamente el código QR</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    setInterval(() => {
+        fetch('/process-qr')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'ya_en_produccion') {
+                    window.location.href = data.redirect_url;
+                } else if (data.status === 'success') {
+                    window.location.href = `/orden/${data.wo}`;
+                }
+            });
+    }, 1000);
+</script>
+
+
 
 {% endblock %}

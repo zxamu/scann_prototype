@@ -3,12 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <title>Detalle de Orden</title>
+    <!-- Enlace a Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <h2>Orden detectada correctamente</h2>
-    <p>WO: {{ orden[0] }}</p>
-    <p>NP: {{ orden[1] }}</p>
-    <p>FE: {{ orden[2] }}</p>
-    <a href="{{ url_for('scan') }}">Escanear otra</a>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-header text-center bg-primary text-white">
+                        <h4>Orden detectada correctamente</h4>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Work Order:</strong> {{ orden[0] }}</p>
+                        <p><strong>Numero de parte:</strong> {{ orden[1] }}</p>
+                        <p><strong>Fecha de entrega:</strong> {{ orden[2] }}</p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{{ url_for('scan_qr_maquina') }}" class="btn btn-outline-primary">Asignar estacion de trabajo</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de Bootstrap opcional -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
