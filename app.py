@@ -19,46 +19,46 @@ db = MySQL(app)
 login_manager_app = LoginManager(app)
 login_manager_app.login_view = 'login'
 
-cap = cv2.VideoCapture(null)
-qr_detector = cv2.QRCodeDetector()
+#cap = cv2.VideoCapture(null)
+#qr_detector = cv2.QRCodeDetector()
 
 detected_qr_data = None
 detected_machine_id = None
 
-def generate():
-    global detected_qr_data
-    while True:
-        success, frame = cap.read()
-        if not success:
-            continue
-
-        data, points, _ = qr_detector.detectAndDecode(frame)
-
-        if points is not None and data:
-            try:
-                qr_json = json.loads(data)
-                wo_number = qr_json.get("WO")
-
-                if wo_number:
-                    detected_qr_data = wo_number
-
-                points = points.astype(int)
-                xi, yi = points[0][0][0], points[0][0][1]
-                cv2.polylines(frame, [points], isClosed=True, color=(0, 255, 0), thickness=5)
-                cv2.putText(frame, f'WO: {wo_number}', (xi - 15, yi - 15),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
-
-            except Exception as e:
-                cv2.putText(frame, f'QR inválido', (50, 50),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-
-        ret, buffer = cv2.imencode('.jpg', frame)
-        if not ret:
-            continue
-        frame_bytes = buffer.tobytes()
-
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+# def generate():
+#     global detected_qr_data
+#     while True:
+#         success, frame = cap.read()
+#         if not success:
+#             continue
+#
+#         data, points, _ = qr_detector.detectAndDecode(frame)
+#
+#         if points is not None and data:
+#             try:
+#                 qr_json = json.loads(data)
+#                 wo_number = qr_json.get("WO")
+#
+#                 if wo_number:
+#                     detected_qr_data = wo_number
+#
+#                 points = points.astype(int)
+#                 xi, yi = points[0][0][0], points[0][0][1]
+#                 cv2.polylines(frame, [points], isClosed=True, color=(0, 255, 0), thickness=5)
+#                 cv2.putText(frame, f'WO: {wo_number}', (xi - 15, yi - 15),
+#                             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+#
+#             except Exception as e:
+#                 cv2.putText(frame, f'QR inválido', (50, 50),
+#                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+#
+#         ret, buffer = cv2.imencode('.jpg', frame)
+#         if not ret:
+#             continue
+#         frame_bytes = buffer.tobytes()
+#
+#         yield (b'--frame\r\n'
+#                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
 
 @app.route('/scan-mobile')
