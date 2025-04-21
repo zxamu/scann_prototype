@@ -3,6 +3,8 @@ from flask_mysqldb import MySQL
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 import cv2
 import json
+import base64
+import numpy as np
 
 # Models
 from models.ModelUser import ModelUser
@@ -17,7 +19,7 @@ db = MySQL(app)
 login_manager_app = LoginManager(app)
 login_manager_app.login_view = 'login'
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 qr_detector = cv2.QRCodeDetector()
 
 detected_qr_data = None
@@ -58,6 +60,64 @@ def generate():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
+
+@app.route('/scan-mobile')
+@login_required
+def scan_mobile():
+    return render_template('scan_mobile.html')
+
+
+@app.route('/procesar-qr-movil', methods=['POST'])
+@login_required
+def procesar_qr_movil():
+    try:
+        imagen_b64 = request.json['imagen'].split(',')[1]
+        img_bytes = base64.b64decode(imagen_b64)
+        nparr = np.frombuffer(img_bytes, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+        # Usa el mismo detector QR que ya tienes
+        data, _, _ = qr_detector.detectAndDecode(img)
+
+        if data:
+            try:
+                qr_json = json.loads(data)
+                wo_number = qr_json.get("WO")
+
+                if wo_number:
+                    # Reutiliza tu lógica existente de process_qr()
+                    cursor = db.connection.cursor()
+                    cursor.execute("SELECT * FROM produccion WHERE wo_fk = %s AND status = 1", (wo_number,))
+                    produccion = cursor.fetchone()
+
+                    if produccion:
+                        return jsonify({
+                            'status': 'ya_en_produccion',
+                            'redirect_url': url_for("detalle_produccion", wo=wo_number)
+                        })
+
+                    cursor.execute("SELECT * FROM ordenes WHERE WO = %s", (wo_number,))
+                    orden = cursor.fetchone()
+                    cursor.close()
+
+                    if not orden:
+                        return jsonify({'status': 'no_orden'})
+
+                    session['current_wo'] = wo_number
+                    return jsonify({
+                        'status': 'success',
+                        'wo': wo_number,
+                        'redirect_url': url_for('detalle_orden', wo=wo_number)
+                    })
+
+            except json.JSONDecodeError:
+                return jsonify({'status': 'qr_invalido'})
+
+        return jsonify({'status': 'no_qr'})
+
+    except Exception as e:
+        print(f"Error procesando QR móvil: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)})
 
 @app.route('/confirmar-registro', methods=['GET', 'POST'])
 @login_required

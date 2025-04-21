@@ -1,0 +1,130 @@
+{% extends './base.html' %}
+
+{% block title %}Escanear QR (Móvil){% endblock %}
+
+{% block customCSS %}
+<style>
+    .scanner-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        height: 100vh;
+    }
+    #video {
+        width: 100%;
+        max-width: 500px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    #canvas {
+        display: none;
+    }
+    .btn-scan {
+        padding: 12px 24px;
+        font-size: 18px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+    }
+    #result {
+        margin-top: 20px;
+        font-size: 16px;
+        color: #333;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="scanner-container">
+    <h2>Escanea el QR con tu cámara</h2>
+    
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+    
+    <button id="capture" class="btn-scan">Escanear QR</button>
+    
+    <div id="result"></div>
+    
+    <!-- Botón de regreso -->
+    <a href="{{ url_for('home') }}" class="btn btn-secondary mt-3">
+        <i class="bi bi-arrow-left"></i> Regresar
+    </a>
+</div>
+
+<script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureBtn = document.getElementById('capture');
+    const resultDiv = document.getElementById('result');
+    let stream = null;
+
+    // 1. Acceder a la cámara del dispositivo
+    async function iniciarCamara() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: { 
+                    facingMode: 'environment',  // Usa la cámara trasera
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            });
+            video.srcObject = stream;
+        } catch (err) {
+            resultDiv.textContent = `Error: ${err.message}`;
+            console.error("Error al acceder a la cámara:", err);
+        }
+    }
+
+    // 2. Capturar y procesar imagen
+    captureBtn.addEventListener('click', async () => {
+        if (!stream) return;
+        
+        // Configurar canvas con las dimensiones del video
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // Convertir a base64
+        const imagen = canvas.toDataURL('image/jpeg');
+        
+        // Mostrar mensaje de procesamiento
+        resultDiv.textContent = "Procesando QR...";
+        
+        // 3. Enviar al backend
+        try {
+            const response = await fetch('/procesar-qr-movil', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imagen: imagen })
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                window.location.href = data.redirect_url;
+            } else if (data.status === 'ya_en_produccion') {
+                window.location.href = data.redirect_url;
+            } else {
+                resultDiv.textContent = "QR no reconocido. Intenta nuevamente.";
+            }
+        } catch (error) {
+            resultDiv.textContent = "Error al conectar con el servidor";
+            console.error("Error:", error);
+        }
+    });
+
+    // Iniciar cámara al cargar la página
+    window.addEventListener('DOMContentLoaded', iniciarCamara);
+    
+    // Detener la cámara al salir de la página
+    window.addEventListener('beforeunload', () => {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+    });
+</script>
+{% endblock %}
