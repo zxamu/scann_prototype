@@ -397,6 +397,4 @@ def status_404(error):
 
 
 if __name__ == '__main__':
-    app.run(debug=True,
-    host='0.0.0.0', port=443, ssl_context=context
-    )
+    app.run(host='127.0.0.1', port=5000)
