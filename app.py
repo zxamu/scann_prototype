@@ -12,12 +12,6 @@ from models.ModelUser import ModelUser
 # Entities
 from models.entities.User import User
 
-from werkzeug.serving import make_ssl_devcert
-import ssl
-
-context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-context.load_cert_chain('cert.pem', 'key.pem')
-
 app = Flask(__name__)
 app.config.from_object('config.DevelopmentConfig')
 
