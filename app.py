@@ -12,6 +12,12 @@ from models.ModelUser import ModelUser
 # Entities
 from models.entities.User import User
 
+from werkzeug.serving import make_ssl_devcert
+import ssl
+
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+context.load_cert_chain('cert.pem', 'key.pem')
+
 app = Flask(__name__)
 app.config.from_object('config.DevelopmentConfig')
 
@@ -391,8 +397,4 @@ def status_404(error):
 
 
 if __name__ == '__main__':
-    app.run(debug=True,
-    host = '0.0.0.0',
-    port = 443,  # Puerto estándar para HTTPS
-    ssl_context = ('cert.pem', 'key.pem')
-    )
+    app.run(host='0.0.0.0', port=443, ssl_context=context)
