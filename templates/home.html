@@ -9,7 +9,7 @@
 {% block body %}
 
     <h1>Bienvenido, {{ current_user.fullname }}</h1>
-    <a class="btn btn-warning col-6" href="{{ url_for('scan-mobile') }}">Registrar Work Order</a>
+    <a class="btn btn-warning col-6" href="{{ url_for('scan_mobile') }}">Registrar Work Order</a>
     <a class="btn btn-danger col-6" href="{{ url_for('logout') }}">Salir</a>
 
 {% endblock %}
